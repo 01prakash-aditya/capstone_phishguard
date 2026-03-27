@@ -1,65 +1,29 @@
-# PhishGuard++
+# PhishGuard++ 🛡️
 
-> Multi-modal phishing detection Chrome extension with 3-tier cascade architecture.  
-> Google Solutions Challenge 2026 · Capstone Project
+**PhishGuard++** is a multi-modal, 3-tier cascade phishing detection system designed for real-time protection across Edge, Cloud, and LLM (Gemini) layers.
 
-## 🏗 Architecture
+## 🚀 Pillars of PhishGuard++
+1. **Tier 1 (Edge):** sub-100ms URL lexical analysis using LightGBM quantized to ONNX (INT8).
+2. **Tier 2 (Cloud):** Structural HTML analysis using a Variational Autoencoder (VAE) and XGBoost.
+3. **Tier 3 (Multi-modal):** Deep semantic analysis using Gemini 1.5 Flash and BERT (PhishBERT/CodeBERT).
 
-```
-URL Input → Community Cache (Firebase) → Tier 1 (ONNX LightGBM, <15ms)
-         → Tier 2 (FastAPI: XGBoost + DistilBERT + CodeBERT, <200ms)
-         → Tier 3 (Gemini 1.5 Flash multimodal, <1500ms)
-         → Risk Score + Plain-English Explanation
-```
-
-## 🚀 Quick Start
-
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Copy environment config
-cp .env.example .env
-# Edit .env with your API keys
-
-# 3. Build dataset
-python -m src.data.dataset_builder
-
-# 4. Extract features (40 URL + HTML features)
-python -m src.features.extract_all
-
-# 5. Train baseline models (RF vs XGB vs LightGBM + Optuna)
-python -m src.models.baseline_race
-```
+## 🛠️ Architecture
+- **Frontend:** Chrome Extension (Manifest V3, ONNX Runtime Web/Wasm).
+- **Backend:** FastAPI (Python), PyTorch, ONNX, HuggingFace.
+- **Data:** 394k sample unified dataset (PhishTank, UCI, PhiUSIIL, Tranco, Mendeley).
 
 ## 📂 Project Structure
+- `/src`: Core Python source code (Data, Features, Models, API).
+- `/extension`: Chrome Extension source (HTML/JS/CSS/Models).
+- `/datasets`: Unified phishing data (Ignored in Git).
+- `/models`: Trained model artifacts (Ignored in Git, see ONNX export).
+- `/papers`: Research foundations.
 
-```
-src/
-├── data/           → Dataset building & augmentation
-├── features/       → Feature extraction (URL + HTML)
-├── models/         → ML models & training
-├── explainability/ → SHAP + XAI pipeline
-└── evaluation/     → Ablation study & benchmarks
-backend/            → FastAPI server (Tier 2 + 3)
-extension/          → Chrome MV3 extension (Tier 1)
-datasets/           → Raw & processed data
-models/             → Trained model artifacts
-```
+## 🏁 Getting Started
+1. `pip install -r requirements.txt`
+2. `python -m src.data.dataset_builder`
+3. `python -m src.features.extract_all` (Background process)
+4. `python deploy_check.py`
 
-## 📊 Datasets
-
-| Source | Samples | Type |
-|--------|---------|------|
-| PhiUSIIL | ~135k | URLs + features |
-| Mendeley | ~80k | URLs + HTML files |
-| PhishTank | ~30k | Verified phishing |
-| Tranco | 1M | Legitimate domains |
-| Kaggle UCI | ~11k | Pre-computed features |
-
-## 🎯 Novel Contributions
-
-1. **Hierarchical Latency-Aware Cascade** — 95% URLs resolved before any server call
-2. **True In-Browser ONNX Inference** — INT8-quantized LightGBM via WebAssembly
-3. **Gemini Brand-Impersonation Reasoning** — Screenshot + HTML → brand verification
-4. **Community Intelligence Layer** — Firebase crowd-sourced zero-day detection
+## ⚖️ License
+MIT License — Part of the Solutions Challenge 2026.
