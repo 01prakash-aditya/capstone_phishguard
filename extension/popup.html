@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PhishGuard++</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <span class="shield">🛡️</span>
+        <h1>PhishGuard++</h1>
+      </div>
+      <div id="status-badge" class="badge">Checking...</div>
+    </header>
+
+    <main>
+      <div class="score-section">
+        <div class="gauge-container">
+          <svg class="gauge" viewBox="0 0 100 50">
+            <path class="gauge-bg" d="M10,45 A40,40 0 0,1 90,45" />
+            <path id="gauge-fill" class="gauge-fill" d="M10,45 A40,40 0 0,1 90,45" style="stroke-dasharray: 0, 126;" />
+          </svg>
+          <div id="risk-percent" class="risk-value">0%</div>
+        </div>
+        <h2 id="verdict-text">Analyzing Site...</h2>
+      </div>
+
+      <div class="info-section">
+        <div class="tier-indicator">
+          <span>Analysis Tier:</span>
+          <span id="active-tier" class="tier-label">Tier 1 (Edge)</span>
+        </div>
+        <div id="explanation" class="explanation">
+          Initializing real-time AI protection...
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="details-btn" class="secondary">View Details</button>
+        <button id="report-btn" class="danger">Report Phish</button>
+      </div>
+    </main>
+
+    <footer>
+      <p>Powered by Gemini 1.5 Flash</p>
+      <div class="trust-consensus">
+        Community Trust: <span id="consensus-val">N/A</span>
+      </div>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
