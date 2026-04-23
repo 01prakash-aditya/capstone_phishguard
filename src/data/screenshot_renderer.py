@@ -66,7 +66,7 @@ async def batch_render():
         await browser.close()
         
     success_count = sum(1 for r in results if r)
-    logger.info(f"✅ Rendering complete. Created {success_count} screenshots in {OUTPUT_DIR}")
+    logger.info(f"[OK] Rendering complete. Created {success_count} screenshots in {OUTPUT_DIR}")
 
 if __name__ == "__main__":
     asyncio.run(batch_render())

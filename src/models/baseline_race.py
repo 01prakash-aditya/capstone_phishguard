@@ -173,13 +173,13 @@ def train_lightweight_lgb(X_train, y_train, X_val, y_val):
     # Save as separate file
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, MODELS_DIR / "lightgbm_edge.pkl")
-    logger.info(f"✅ Saved Edge-optimized model to {MODELS_DIR / 'lightgbm_edge.pkl'}")
+    logger.info(f"[OK] Saved Edge-optimized model to {MODELS_DIR / 'lightgbm_edge.pkl'}")
     
     return model
 
 def run_optuna_sweep(X_train, y_train, X_val, y_val, X_test, y_test, n_trials: int = 50):
     """Run Optuna Bayesian optimization on LightGBM."""
-    logger.info(f"\n🔍 Running Optuna sweep ({n_trials} trials)...")
+    logger.info(f"\n[INFO] Running Optuna sweep ({n_trials} trials)...")
 
     study = optuna.create_study(direction="maximize", study_name="lightgbm_phishguard")
     study.optimize(
@@ -211,7 +211,7 @@ def run_optuna_sweep(X_train, y_train, X_val, y_val, X_test, y_test, n_trials: i
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     model_path = MODELS_DIR / "lightgbm_stage1.pkl"
     joblib.dump(final_model, model_path)
-    logger.info(f"\n💾 Saved best model to {model_path}")
+    logger.info(f"\n[SAVED] Best model to {model_path}")
 
     # Save metadata
     meta = {
@@ -252,7 +252,7 @@ def plot_feature_importance(model, feature_names, save_path=None):
 
     if save_path:
         plt.savefig(save_path, dpi=150, bbox_inches="tight")
-        logger.info(f"📊 Saved feature importance plot to {save_path}")
+        logger.info(f"[SAVED] Feature importance plot to {save_path}")
     plt.close()
 
 
@@ -268,7 +268,7 @@ def try_wandb_log(metrics: Dict, model_name: str):
         )
         wandb.log(metrics)
         wandb.finish()
-        logger.info(f"📊 Logged to W&B: {model_name}")
+        logger.info(f"[LOGGED] To W&B: {model_name}")
     except Exception as e:
         logger.info(f"W&B not available ({e}), using CSV logging only")
 
@@ -333,7 +333,7 @@ def main():
         save_path=RESULTS_DIR / "feature_importance.png",
     )
 
-    logger.info("\n✅ Baseline race complete!")
+    logger.info("\n[OK] Baseline race complete!")
 
 
 if __name__ == "__main__":

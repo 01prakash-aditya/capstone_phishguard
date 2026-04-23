@@ -57,7 +57,7 @@ def export_lgb_to_onnx(model_path: Path, output_name: str = "phishguard_edge.onn
     if raw_path.exists():
         raw_path.unlink()
         
-    logger.info(f"✅ Exported and quantized model to {quantized_path}")
+    logger.info(f"[OK] Exported and quantized model to {quantized_path}")
     logger.info(f"   Size: {quantized_path.stat().st_size / 1024:.2f} KB (Target: <300KB)")
     
     return quantized_path

@@ -8,7 +8,7 @@ async def test():
     print("1. Health check...")
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.get(f"{BASE}/docs")
-        print(f"   Status: {r.status_code} {'✅' if r.status_code == 200 else '❌'}")
+        print(f"   Status: {r.status_code} {'ok' if r.status_code == 200 else 'broke'}")
 
     print("2. Phishing URL test (cold start may take ~60s)...")
     async with httpx.AsyncClient(timeout=120) as c:
@@ -20,7 +20,7 @@ async def test():
         verdict = d.get("verdict", "?")
         score = d.get("score", 0)
         tier = d.get("tier", "?")
-        status = "✅" if verdict == "PHISH" else "⚠️"
+        status = "ok" if verdict == "PHISH" else "warn"
         print(f"   {status} Verdict: {verdict} | Score: {score:.3f} | Tier: {tier}")
 
 asyncio.run(test())

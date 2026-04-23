@@ -1,5 +1,5 @@
 // PhishGuard++ Popup Logic — Premium UI
-console.log("🚀 PhishGuard++ Popup Loaded (v2.0.1)");
+console.log("[INFO] PhishGuard++ Popup Loaded (v2.0.1)");
 
 // ── Backend Configuration ────────────────────────────────
 const BACKEND_URL = "https://phishguard-backend-957267859324.us-central1.run.app";
@@ -90,13 +90,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         body: JSON.stringify({ url: tab.url, reason: reportReason.value.trim() })
       });
       if (resp.ok) {
-        submitBtn.textContent = '✅ Reported!';
+        submitBtn.textContent = '[OK] Reported!';
         setTimeout(() => window.close(), 1500);
       } else {
         throw new Error('Non-2xx');
       }
     } catch {
-      submitBtn.textContent = '❌ Failed — retry';
+      submitBtn.textContent = '[ERROR] Failed - retry';
       submitBtn.disabled = false;
     }
   });

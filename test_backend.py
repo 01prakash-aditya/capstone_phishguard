@@ -41,9 +41,9 @@ async def run_tests():
         # Health check
         try:
             r = await client.get(f"{BASE}/docs")
-            print(f"✅ Backend reachable — Status {r.status_code}")
+            print(f"[OK] Backend reachable - Status {r.status_code}")
         except Exception as e:
-            print(f"❌ Backend unreachable: {e}")
+            print(f"[ERROR] Backend unreachable: {e}")
             return
 
         print()
@@ -64,7 +64,7 @@ async def run_tests():
                 tier = data.get("tier", "N/A")
                 
                 expected = test.get("expect_verdict")
-                status = "✅" if (not expected or verdict == expected) else "⚠️"
+                status = "[OK]" if (not expected or verdict == expected) else "[WARN]"
                 
                 print(f"{status} {name}")
                 print(f"   Verdict: {verdict} | Score: {score} | Tier: {tier}")
@@ -74,7 +74,7 @@ async def run_tests():
                 print()
                 
             except Exception as e:
-                print(f"❌ {name} — Error: {e}")
+                print(f"[ERROR] {name} - Error: {e}")
                 print()
 
 if __name__ == "__main__":

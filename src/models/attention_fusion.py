@@ -164,7 +164,7 @@ def train_fusion(
     if best_state:
         MODELS_DIR.mkdir(parents=True, exist_ok=True)
         torch.save(best_state, MODELS_DIR / "attention_fusion.pth")
-        logger.info(f"✅ SOTA Fusion Layer saved with Best Val Acc: {best_val_acc:.4%}")
+        logger.info(f"[OK] SOTA Fusion Layer saved with Best Val Acc: {best_val_acc:.4%}")
     
     return model
 

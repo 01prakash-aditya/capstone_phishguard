@@ -50,7 +50,7 @@ function showThreatNotification(url, verdict) {
 }
 
 async function analyzeUrl(url, htmlFeatures, htmlExcerpt, screenshotBase64, tabId = null) {
-  console.log(`🚀 Analyzing: ${url}`);
+  console.log(`[ANALYZE] Analyzing: ${url}`);
 
   // Tier 1: Edge (ONNX) via Offscreen Document
   let score = 0.5;
@@ -89,7 +89,7 @@ async function analyzeUrl(url, htmlFeatures, htmlExcerpt, screenshotBase64, tabI
   }
 
   // Tier 2: Cloud (Escalation)
-  console.log('⚠️ Suspicious: Escalating to Tier 2 Cloud...');
+  console.log('[WARN] Suspicious: Escalating to Tier 2 Cloud...');
   try {
     const response = await fetch(`${CONFIG.BACKEND_URL}/analyze/cloud`, {
       method: 'POST',

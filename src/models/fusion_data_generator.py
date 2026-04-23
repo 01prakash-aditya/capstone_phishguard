@@ -135,7 +135,7 @@ async def generate_fusion_data(limit: int = 10000):
         temp_df = pd.DataFrame(results)
         temp_df.to_csv(output_path, mode='a', header=not output_path.exists(), index=False)
 
-    logger.info(f"✅ Incremental update complete. Meta-dataset now at {output_path}")
+    logger.info(f"[OK] Incremental update complete. Meta-dataset now at {output_path}")
 
 if __name__ == "__main__":
     import sys

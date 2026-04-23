@@ -47,7 +47,7 @@ class FusionOrchestrator:
             try:
                 import joblib
                 self.tabular = joblib.load(lgbm_path)
-                logger.info("✅ Loaded LightGBM Stage 1")
+                logger.info("[OK] Loaded LightGBM Stage 1")
             except Exception as e:
                 logger.error(f"Failed to load LightGBM: {e}")
         
@@ -57,7 +57,7 @@ class FusionOrchestrator:
             try:
                 self.pb_tokenizer = AutoTokenizer.from_pretrained(pb_path)
                 self.phishbert = AutoModelForSequenceClassification.from_pretrained(pb_path).to(self.device).eval()
-                logger.info("✅ Loaded PhishBERT")
+                logger.info("[OK] Loaded PhishBERT")
             except Exception as e:
                 logger.error(f"Failed to load PhishBERT: {e}")
 
@@ -67,7 +67,7 @@ class FusionOrchestrator:
             try:
                 self.cb_tokenizer = AutoTokenizer.from_pretrained(cb_path)
                 self.codebert = AutoModelForSequenceClassification.from_pretrained(cb_path).to(self.device).eval()
-                logger.info("✅ Loaded CodeBERT")
+                logger.info("[OK] Loaded CodeBERT")
             except Exception as e:
                 logger.error(f"Failed to load CodeBERT: {e}")
 
@@ -78,7 +78,7 @@ class FusionOrchestrator:
                 model = PhishEfficientNet("efficientnet_b7")
                 model.load_state_dict(torch.load(enet_path, map_location=self.device, weights_only=True))
                 self.efficientnet = model.to(self.device).eval()
-                logger.info("✅ Loaded EfficientNet-B7")
+                logger.info("[OK] Loaded EfficientNet-B7")
             except Exception as e:
                 logger.error(f"Failed to load EfficientNet: {e}")
 
@@ -89,7 +89,7 @@ class FusionOrchestrator:
                 model = AttentionFusion(n_branches=4)
                 model.load_state_dict(torch.load(fusion_path, map_location=self.device, weights_only=True))
                 self.fusion = model.to(self.device).eval()
-                logger.info("✅ Loaded Attention-Fusion Core")
+                logger.info("[OK] Loaded Attention-Fusion Core")
             except Exception as e:
                 logger.error(f"Failed to load Fusion layer: {e}")
 

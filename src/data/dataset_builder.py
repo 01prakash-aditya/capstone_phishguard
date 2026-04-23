@@ -246,7 +246,7 @@ def main():
     mendeley.to_csv(mendeley_path, index=False)
     logger.info(f"Saved Mendeley metadata to {mendeley_path}")
 
-    logger.info("\n✅ Dataset building complete!")
+    logger.info("\n[OK] Dataset building complete!")
 
 
 if __name__ == "__main__":

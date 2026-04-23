@@ -14,9 +14,9 @@ async function initModel() {
     session = await ort.InferenceSession.create('/models/phishguard_edge.onnx', {
       executionProviders: ['wasm'],
     });
-    console.log('✅ PhishGuard++ Tier 1 (ONNX) Loaded Successfully in Offscreen Document');
+    console.log('[OK] PhishGuard++ Tier 1 (ONNX) Loaded Successfully in Offscreen Document');
   } catch (e) {
-    console.error('❌ Failed to load ONNX model in offscreen document:', e);
+    console.error('[ERROR] Failed to load ONNX model in offscreen document:', e);
   }
 }
 

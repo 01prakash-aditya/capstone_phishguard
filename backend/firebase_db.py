@@ -1,10 +1,13 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 import logging
+import os
 from pathlib import Path
 from datetime import datetime
 import base64
+from dotenv import load_dotenv
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Singleton database reference
@@ -15,7 +18,10 @@ def init_firebase():
     global db
     if not firebase_admin._apps:
         try:
-            cred_path = Path(__file__).parent / "serviceAccountKey.json"
+            # Get credentials path from environment or use default
+            cred_path_env = os.getenv("FIREBASE_CREDENTIALS_PATH", "./firebase_credentials.json")
+            cred_path = Path(cred_path_env).resolve()
+            
             if not cred_path.exists():
                 logger.error(f"Firebase Credentials not found at {cred_path}")
                 return False

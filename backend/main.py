@@ -19,15 +19,30 @@ from dotenv import load_dotenv
 
 # Absolute imports
 from src.explainability.shap_pipeline import get_phish_explanation, FEATURE_ORDER
+from src.models.site_multimodal import site_detector
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-# Initialize Gemini
-_genai_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Initialize Gemini (lazy initialization to handle missing keys)
+_genai_client = None
 GEMINI_MODEL_ID = "gemini-2.5-flash-preview-04-17"
+
+def get_gemini_client():
+    global _genai_client
+    if _genai_client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if api_key and api_key != "placeholder_key_for_development":
+            try:
+                _genai_client = genai.Client(api_key=api_key)
+                logger.info("[OK] Gemini API initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Gemini: {e}")
+        else:
+            logger.info("WARNING: Gemini API key not configured - Tier 3 will be unavailable")
+    return _genai_client
 
 app = FastAPI(title="PhishGuard++ Cloud Backend")
 
@@ -118,6 +133,12 @@ async def run_tier2_analysis(features: dict):
 # ── Tier 3: Gemini Analysis ───────────────────────────────────
 def run_tier3_gemini(url: str, html_excerpt: str, screenshot_base64: Optional[str] = None):
     import json, base64
+    
+    client = get_gemini_client()
+    if client is None:
+        logger.warning("Gemini client not available - returning fallback SAFE verdict")
+        return {"verdict": "SAFE", "score": 0.5, "reason": "Gemini API not configured"}
+    
     logger.info(f"Escalating to Gemini Tier 3 for {url}...")
     
     prompt = f"""Analyze the following URL and HTML excerpt for phishing indicators.
@@ -148,7 +169,7 @@ Output ONLY valid JSON:
         ))
     
     try:
-        response = _genai_client.models.generate_content(
+        response = client.models.generate_content(
             model=GEMINI_MODEL_ID,
             contents=parts,
             config=genai_types.GenerateContentConfig(
@@ -203,6 +224,17 @@ async def analyze_cloud(request: AnalysisRequest):
     )
     
     fused_score = fusion_data["fused_score"]
+
+    # OCR + BERT + image-grade site detector
+    site_result = await asyncio.to_thread(
+        site_detector.predict,
+        request.url,
+        request.htmlExcerpt,
+        request.screenshotBase64,
+    )
+    site_score = float(site_result["score"])
+    fused_score = float((fused_score * 0.7) + (site_score * 0.3))
+    site_reason = site_result.get("reason", "")
     
     # 5. Fast-Path for highly confident local models
     if fused_score > 0.8:
@@ -210,7 +242,7 @@ async def analyze_cloud(request: AnalysisRequest):
             verdict="PHISH", 
             score=fused_score, 
             tier=3, 
-            reason=f"Fusion Confidence [{fused_score:.2f}]: {explanation or 'High Multimodal Risk.'}"
+            reason=f"Fusion Confidence [{fused_score:.2f}]: {site_reason or explanation or 'High Multimodal Risk.'}"
         )
     elif fused_score < 0.2:
         return AnalysisResponse(
@@ -223,14 +255,17 @@ async def analyze_cloud(request: AnalysisRequest):
     # 6. Escalate to Gemini (Tier 4 fallback) if local models are ambiguous
     logger.info(f"Fusion score ambiguous ({fused_score:.2f}), escalating to Gemini...")
     verdict, g_score, vision_reason = run_tier3_gemini(request.url, request.htmlExcerpt, request.screenshotBase64)
-    final_reason = f"{vision_reason}\n\nTechnical Signals:\n{explanation}" if explanation else vision_reason
+    extra_reason = f"\n\nSite Detector:\n{site_reason}" if site_reason else ""
+    final_reason = f"{vision_reason}{extra_reason}\n\nTechnical Signals:\n{explanation}" if explanation else f"{vision_reason}{extra_reason}"
     return AnalysisResponse(verdict=verdict, score=g_score, tier=4, reason=final_reason)
 
 @app.on_event("startup")
 def startup_event():
     # We dynamically import so it doesn't break if run from root.
     from . import firebase_db
-    firebase_db.init_firebase()
+    success = firebase_db.init_firebase()
+    if not success:
+        logger.warning("WARNING: Firebase initialization skipped - Community features disabled")
 
 @app.post("/community/report")
 async def report_url(request: ReportRequest):
