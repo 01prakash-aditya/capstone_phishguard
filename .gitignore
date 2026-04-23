@@ -18,3 +18,5 @@ firebase*credentials.json
 serviceAccountKey.json
 venv/
 dataset/
+extension/models/
+*.safetensors
