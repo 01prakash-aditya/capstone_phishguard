@@ -18,5 +18,20 @@ firebase*credentials.json
 serviceAccountKey.json
 venv/
 dataset/
+
+# ============================================================
+# Model Files (Too Large for GitHub - use GCS/S3 instead)
+# ============================================================
 extension/models/
 *.safetensors
+*.bin
+checkpoint-*/
+training_args.bin
+trainer_state.json
+runs/
+
+# Large model artifacts
+*.pb
+*.pbtxt
+model.onnx
+*.joblib.gz
