@@ -264,8 +264,10 @@ def startup_event():
     # We dynamically import so it doesn't break if run from root.
     from . import firebase_db
     success = firebase_db.init_firebase()
-    if not success:
-        logger.warning("WARNING: Firebase initialization skipped - Community features disabled")
+    if success:
+        logger.info("✓ Firebase initialized - Community features enabled")
+    else:
+        logger.info("ℹ️  Firebase not initialized - Core phishing detection active (Community features disabled)")
 
 @app.post("/community/report")
 async def report_url(request: ReportRequest):

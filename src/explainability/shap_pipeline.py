@@ -40,7 +40,17 @@ class PhishExplainer:
             
         try:
             if not MODEL_PATH.exists():
-                logger.error(f"Model not found at {MODEL_PATH}")
+                logger.warning(
+                    f"\n{'='*60}\n"
+                    f"⚠️  LightGBM model not found at:\n"
+                    f"   {MODEL_PATH}\n\n"
+                    f"Tier 2 classification will use fallback scoring (0.5).\n\n"
+                    f"To enable LightGBM classification:\n"
+                    f"  1. Train the model: python train_multimodal.py\n"
+                    f"  2. Or place pre-trained model at: models/lightgbm_stage1.pkl\n"
+                    f"  3. Restart the backend\n"
+                    f"{'='*60}"
+                )
                 self.model = None
                 self.explainer = None
                 return
@@ -51,7 +61,13 @@ class PhishExplainer:
             self._initialized = True
             logger.info("SHAP Explainer initialized successfully.")
         except Exception as e:
-            logger.error(f"Failed to initialize SHAP Explainer: {e}")
+            logger.warning(
+                f"\n{'='*60}\n"
+                f"⚠️  SHAP Explainer initialization failed: {e}\n\n"
+                f"Feature explanations will be unavailable.\n"
+                f"The backend will continue with basic phishing detection.\n"
+                f"{'='*60}"
+            )
             self.model = None
             self.explainer = None
 

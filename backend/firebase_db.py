@@ -23,7 +23,17 @@ def init_firebase():
             cred_path = Path(cred_path_env).resolve()
             
             if not cred_path.exists():
-                logger.error(f"Firebase Credentials not found at {cred_path}")
+                logger.warning(
+                    f"\n{'='*60}\n"
+                    f"⚠️  Firebase credentials not found at:\n"
+                    f"   {cred_path}\n\n"
+                    f"Community features (URL reporting, trust checks) will be DISABLED.\n\n"
+                    f"To enable Firebase:\n"
+                    f"  1. Copy: firebase_credentials.json.example → firebase_credentials.json\n"
+                    f"  2. Add your Firebase service account credentials\n"
+                    f"  3. See SETUP.md for detailed instructions\n"
+                    f"{'='*60}"
+                )
                 return False
                 
             cred = credentials.Certificate(str(cred_path))
@@ -32,7 +42,13 @@ def init_firebase():
             logger.info("Successfully connected to Firebase Firestore!")
             return True
         except Exception as e:
-            logger.error(f"Failed to initialize Firebase: {e}")
+            logger.warning(
+                f"\n{'='*60}\n"
+                f"⚠️  Firebase initialization failed: {e}\n\n"
+                f"Community features will be DISABLED.\n"
+                f"The backend will continue with core phishing detection.\n"
+                f"{'='*60}"
+            )
             return False
     return True
 
