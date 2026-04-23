@@ -17,4 +17,4 @@ node_modules/
 firebase*credentials.json
 serviceAccountKey.json
 venv/
-datasets/
+dataset/
