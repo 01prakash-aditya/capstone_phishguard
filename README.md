@@ -685,4 +685,3 @@ chrome://extensions/ → Developer mode ON → Load unpacked → select extensio
 **Last Updated:** April 23, 2026  
 **Version:** 2.0 (Multi-Modal Cascade Architecture)  
 **Status:** Active Development  
-**Repository:** [naksshhh/PhishGuard](https://github.com/naksshhh/PhishGuard)
