@@ -236,28 +236,50 @@ async def analyze_cloud(request: AnalysisRequest):
     fused_score = float((fused_score * 0.7) + (site_score * 0.3))
     site_reason = site_result.get("reason", "")
     
-    # 5. Fast-Path for highly confident local models
-    if fused_score > 0.8:
+    # 5. Confidence Thresholds for Local Models
+    # Tier 3 = Multimodal Fusion (no Gemini needed)
+    # Tier 4 = Gemini escalation (only for borderline cases)
+    PHISH_THRESHOLD = 0.75      # High confidence phishing
+    SAFE_THRESHOLD = 0.25       # High confidence safe
+    GEMINI_THRESHOLD = 0.15     # Only escalate if very uncertain
+    
+    # Fast-Path 1: High confidence PHISH
+    if fused_score > PHISH_THRESHOLD:
         return AnalysisResponse(
             verdict="PHISH", 
             score=fused_score, 
             tier=3, 
             reason=f"Fusion Confidence [{fused_score:.2f}]: {site_reason or explanation or 'High Multimodal Risk.'}"
         )
-    elif fused_score < 0.2:
+    
+    # Fast-Path 2: High confidence SAFE
+    elif fused_score < SAFE_THRESHOLD:
         return AnalysisResponse(
             verdict="SAFE", 
             score=fused_score, 
             tier=3, 
-            reason="Multi-tier signals appear safe."
+            reason=f"Multi-tier signals appear safe. [{fused_score:.2f}]"
         )
-        
-    # 6. Escalate to Gemini (Tier 4 fallback) if local models are ambiguous
-    logger.info(f"Fusion score ambiguous ({fused_score:.2f}), escalating to Gemini...")
-    verdict, g_score, vision_reason = run_tier3_gemini(request.url, request.htmlExcerpt, request.screenshotBase64)
+    
+    # Borderline cases: Use Gemini only if within the uncertainty band
+    # (fused_score between 0.25 and 0.75)
+    elif abs(fused_score - 0.5) < 0.25:  # Within ±0.25 of 0.5 (true ambiguity)
+        logger.info(f"Fusion score borderline ({fused_score:.2f}), escalating to Gemini for vision analysis...")
+        verdict, g_score, vision_reason = run_tier3_gemini(request.url, request.htmlExcerpt, request.screenshotBase64)
+    else:
+        # Medium confidence: Use local model verdict (Tier 3)
+        logger.info(f"Fusion score moderate ({fused_score:.2f}), using multimodal verdict...")
+        verdict = "PHISH" if fused_score > 0.5 else "SAFE"
+        g_score = fused_score
+        vision_reason = site_reason or explanation or "Multimodal analysis inconclusive"
+    
+    # Build final response with proper tier assignment
     extra_reason = f"\n\nSite Detector:\n{site_reason}" if site_reason else ""
     final_reason = f"{vision_reason}{extra_reason}\n\nTechnical Signals:\n{explanation}" if explanation else f"{vision_reason}{extra_reason}"
-    return AnalysisResponse(verdict=verdict, score=g_score, tier=4, reason=final_reason)
+    
+    # Determine tier based on whether Gemini was called
+    tier_num = 4 if abs(fused_score - 0.5) < 0.25 else 3
+    return AnalysisResponse(verdict=verdict, score=g_score, tier=tier_num, reason=final_reason)
 
 @app.on_event("startup")
 def startup_event():
